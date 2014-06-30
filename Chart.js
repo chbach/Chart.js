@@ -1915,7 +1915,10 @@
 		barDatasetSpacing : 1,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+
+		// individual colors for each bar
+		showIndividualColors: true
 
 	};
 
@@ -1987,19 +1990,26 @@
 				this.datasets.push(datasetObject);
 
 				helpers.each(dataset.data,function(dataPoint,index){
+					var individualFillColor, individualStrokeColor;
+
 					if (helpers.isNumber(dataPoint)){
+						// determine bar and stroke colors
+						if (this.options.showIndividualColors && dataset.individualColors && dataset.individualColors[index]) {
+							individualFillColor = dataset.individualColors[index].fillColor;
+							individualStrokeColor = dataset.individualColors[index].strokeColor;
+						} 
+
 						//Add a new point for each piece of data, passing any required data to draw.
 						datasetObject.bars.push(new this.BarClass({
 							value : dataPoint,
 							label : data.labels[index],
-							strokeColor : dataset.strokeColor,
-							fillColor : dataset.fillColor,
-							highlightFill : dataset.highlightFill || dataset.fillColor,
-							highlightStroke : dataset.highlightStroke || dataset.strokeColor
+							strokeColor : individualStrokeColor || dataset.strokeColor,
+							fillColor : individualFillColor || dataset.fillColor,
+							highlightFill : individualFillColor || dataset.highlightFill || dataset.fillColor,
+							highlightStroke : individualStrokeColor || dataset.highlightStroke || dataset.strokeColor
 						}));
 					}
 				},this);
-
 			},this);
 
 			this.buildScale(data.labels);
@@ -2176,6 +2186,7 @@
 
 
 }).call(this);
+
 (function(){
 	"use strict";
 
